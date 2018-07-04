@@ -1,0 +1,1506 @@
+﻿Sub tst
+  'MsgBox Now()
+  'Set Oleobj = Excel.
+  strDate = Now()
+  newdate =  Replace(strDate,":","_")
+  newdate1 = Replace(newdate," ","_")
+ ' MsgBox curDate & "-" &newdate1
+  MsgBox newdate1
+  Spath = "C:\TestExecution\TestCaseName\"&newdate1&"\"
+  Set w = Sys.Desktop.FocusedWindow.Picture '(20, 20, 50, 50)
+  'w.SaveToFile "C:\Data\screenimage1"&Date()&".png"
+  aqFileSystem.CreateFolder(Spath)
+  w.SaveToFile Spath &Date()&".png"
+  
+End Sub 
+
+Sub Test45
+'Set w = Sys.Desktop.ActiveWindow.Picture(20, 20, 50, 50)
+'Sys.Desktop.FocusedWindow.P
+Set w = Sys.Desktop.FocusedWindow.Picture '(20, 20, 50, 50)
+  w.SaveToFile "C:\Data\screenimage1"&Date()&".png"
+
+'Regions.AddPicture w, "MyFile.bmp"
+End Sub
+
+
+Sub Pics
+Log.Message "Warning Message Text", "Extended Text", pmHighest, Nothing, Sys.Desktop   
+
+End Sub 
+
+Sub Test14
+  Dim Pict, NewPict, x, y
+
+  ' Creates a new empty Picture object
+  Set Pict = Utils.Picture
+  
+'  Utils.Picture. 
+  ' Loads the image from a file and posts it to the log
+  Call Pict.LoadFromFile("C:\Data\my_image.png")
+  Log.Picture(Pict)
+
+  ' Obtains the bounds of the new image
+  x = Pict.Size.Width - 10
+  y = Pict.Size.Height - 10
+
+  ' Obtains the new Picture object containing the specified rectangular area of the loaded image
+  Set NewPict = Pict.GetRect(0, 0, x, y)
+
+  ' Changes the color of the top left pixel of the new image to the red color
+  NewPict.Pixels(0,0)= clRed
+
+  ' Saves the obtained picture to the new file and posts the image to the log
+  Call NewPict.SaveToFile("C:\Data\my_new_image1.png")
+  Log.Picture(NewPict)
+End Sub
+
+Sub PagePictureSample
+
+  Browsers.Item(btIexplorer).Run("http://smartbear.com")
+  Set page = Sys.Browser("iexplore").Page("*")
+  ' Captures an image of the web page
+  Set picture = page.PagePicture
+  ' Posts the image to the test log
+  'Utils.Picture.SaveToFile("C:\Data"&picture&".png")
+  Log.Picture picture
+ 
+End Sub
+
+
+
+
+
+Dim Excel, Result, Reason, Username1
+ 
+'Get the name of the person who ran the test
+Set Username1 = CreateObject("Wscript.Network")
+ 
+Reason = "Reason"
+Sub DriverScript
+
+'Read from the TestSuite Controller 
+Set objFileRead = CreateObject("Scripting.FileSystemObject").OpenTextFile("C:\Testing\TestSuite\Test.txt",1)
+Dim strLine,strLine1
+Do While Not objFileRead.AtEndOfStream
+
+strLine = objFileRead.ReadLine()
+read = Split(strLine,"||") 
+	
+
+	if read(2) = "1" Then
+	'Select the TestSuite that we want to Execute
+  	MsgBox "Test Suite that has been selected for execution :" &read(0)
+ 
+	 Dim RowCount, ColumnCount, i, j, s
+ 
+ '	Set Excel = Sys.OleObject("Excel.Application")
+	 Set Excel = CreateObject("Excel.Application")
+  	Excel.Workbooks.Open("C:\Testing\TestSuite\"&read(0)&".xlsx")
+'	Excel.ActiveSheet("MainSheet").Activate
+	Excel.WorkSheets("MainSheet").Activate
+	RowCount = Excel.ActiveSheet.UsedRange.Rows.Count
+	 ColumnCount = Excel.ActiveSheet.UsedRange.Columns.Count
+
+	  For i = 2 To RowCount
+    'Check if the test has been selected for automation
+	  If Excel.Cells(i,3) = "Y"  Then	
+		Excel.Cells(i,3).Value = "N"	
+		Excel.Cells(i,13).Value = "In Progress"
+		Excel.Cells(i,13).Interior.Color =  RGB(0,0,255)
+	    		For j = 4 To 12
+          'Execute the selected function in the process
+          
+          if Excel.Cells(i,j) <> "" Then
+'          Msgbox(Excel.Cells(i,j))
+	     	 	Eval(Excel.Cells(i,j))
+			    End If
+			  	if Result = "fail" Then
+          
+				  'Activate the Mainsheet after the result is returned
+					Excel.WorkSheets("MainSheet").Activate
+          log.Message (" Test Suite:  "& read(0)& Excel.Cells(i,1)&"Failed at"& Excel.Cells(i,j))
+					Excel.Cells(i,13).Value = "Fail"
+					Excel.Cells(i,14).Value = "Failed at :"&Excel.Cells(i,j)&Reason
+					Excel.Cells(i,13).Interior.Color = RGB(255,0,0)
+					Excel.Cells(i,15).Value = "Last Execution :" &Now()
+          Excel.Cells(i,16).Value = Username1.UserName
+					Log.Picture Sys.Desktop.ActiveWindow, "Message Text", "Extended Message Text", pmHighest
+					'Exit the process cos of failure - To move onto the next test in the test suite
+					 Exit For
+					Else	
+          'Activate the mainsheet that controls the test
+					'Excel.ActiveSheet("MainSheet").Activate
+					Excel.WorkSheets("MainSheet").Activate
+					Excel.Cells(i,13).Value = "Pass"
+					Excel.Cells(i,13).Interior.Color =  RGB(0,255,0)
+					'Clear the comments if there is no failure
+					Excel.Cells(i,14).Value = " "
+					Excel.Cells(i,15).Value = "Last Execution :" &Now()
+          Excel.Cells(i,16).Value = Username1.UserName			
+					End If
+
+    			Next
+		Else
+		Excel.Cells(i,3).Value = "Not selected for execution"
+    
+	  End If 
+
+  Next  
+ 			' Excel.Workbooks.SAVE 	
+			Excel.ActiveWorkBook.Save	
+		  Excel.Quit
+ End If
+
+Loop
+
+objFileRead.Close
+Set objFileRead = Nothing 
+Call Log.SaveResultsAs("C:\TestResult\"&Date()&"Log.mht", lsMHT)
+End Sub
+''''''
+'This function is for creating a process
+Function ProceCreate1(Byval proc)
+  Dim browser
+  Dim section
+  Dim panel
+  Dim textbox
+  Dim panel2
+  Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/processSearch")
+  Set browser = Aliases.browser
+  Set section = browser.pageNewBusinessCaptureMomentumFi.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section
+  Set panel = section.formFormHorizontalNgUntouchedNg.panelFormGroup4
+  Call panel.panelCheckboxColSm3.checkboxCreateNewProcess.ClickButton(cbChecked)
+  Set textbox = panel.textboxProcessId
+  Call textbox.Click(40, 22)
+  Call textbox.SetText("16687665433")
+  Call browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser.Drag(1357, 240, 8, 217)
+  Set panel = section.panelContainer.panelPanelBody
+  panel.buttonCreateAndLoadProcess.ClickButton
+  Set panel2 = panel.panelBodyPaddingRow.panelColSm12.panelCardContent
+  Call panel2.sectionPanelBodyCardHeight.panelRow.panelResponsiveTable.Click(418, 268)
+  panel2.sectionPanelFooter.buttonView.ClickButton
+End Function
+'Capture Documents
+Function CaptureDocs(ByVal test)
+  Dim CompOption
+
+  Excel.WorkSheets("CaptureDocs").Activate
+	RowCnt = Excel.ActiveSheet.UsedRange.Rows.Count
+'	str1 = str
+ ' msgbox str1
+	For b = 2 to RowCnt
+'        msgbox lcase(Excel.Cells(b,1))&" - "&lcase(str1)
+		If lcase(Excel.Cells(b,1)) <> lcase(test) Then
+ '     MsgBox lcase(Excel.Cells(b,1))&" - "& lcase(val1) 
+		 'Move to the next row
+		 Else     
+     CompOption = Excel.Cells(b,2)
+		  Exit For	
+		End If		
+	Next  
+
+
+  Dim browser,browser2,page,panel, section, form, panel12, panel13, panel14, panel15, button, textbox
+  Dim table, cell, textnode,vselect  
+ 
+
+'  Call Browsers.Item(btIExplorer, "", Browsers.pX64).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/uploadAndShare")
+   'Click the Save and Continue Button
+aqUtils.Delay 1000
+set val1 = Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(0)
+'aqUtils.Delay 1000
+sys.HighlightObject(val1)
+if val1.Exists Then
+aqUtils.Delay 0500
+
+'MsgBox "Exist"
+Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(2).Button(1).Click
+Else
+Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(2).Button(1).Click
+'MsgBox "Not found"
+
+End If
+  
+  Set browser = Aliases.browser
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+  Call browser2.Drag(1352, 280, 13, 246)
+  Set page = browser.pageNewBusinessCaptureMomentumFi2
+  Set panel = page.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel
+  Set section = panel.panelContainer.section
+  Set form = section.formFormHorizontalNgUntouchedNg
+  Set panel2 = form.panelFormGroup2
+  Set panel3 = panel2.panelColSm9
+  Call panel3.textboxClientcontactemail.Click(212, 30)
+  
+  If panel3.Exists Then
+  
+  Set panel4 = section.panelContainer
+  Set panel5 = panel4.panelColSm12
+ ' Call panel5.panelFormDynamicSectionPlacehold.panelFormGroup.panelColSm12.Click(101, 8)
+  Set button = section.buttonCreateAndLoadProcess
+ ' button.ClickButton
+ 'Click the add another email button
+ ' Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/uploadAndShare").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(0).Section(0).Panel(0).Panel(0).Panel(1).Panel(0).Panel(0).Panel(5).Panel(0).Panel(0).Button(0).Click
+ 
+ ' Set textbox = panel3.textboxEmail1
+ ' Call textbox.Click(31, 23)
+ ' Call textbox.SetText("jhggjhghg@ghhgh.com")
+  Call browser2.Drag(1357, 401, 8, 103)
+  'Click the Send Button
+'  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/uploadAndShare").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(0).Section(0).Panel(0).Panel(0).Panel(1).Panel(0).Panel(0).Panel(6).Button(0).Click
+ ' button.ClickButton
+'  Call browser2.Drag(1357, 468, 7, 48)
+  Call panel5.panelPanelHeading.panelUpload.Click(129, 22)
+ ' Call panel.Drag(1362, 193, 3, 45)
+ ' Call browser2.Click(1363, 286)
+  Set panel3 = panel4.panelPanelBody
+  Call panel3.Click(1175, 196)
+  Call browser2.Drag(1354, 344, 10, 154)
+  Set table = panel2.tableTableTableStripedTableNoBo
+  Set cell = table.cellTextRight
+  Call cell.Click(32, 12)
+  cell.link.Click
+  Set textNode = table.textnodeUpload
+  Call textNode.Click(98, 10)
+  Call browser2.Click(1214, 248)
+  table.cellTextRight3.link.Click
+  Call textNode.Click(84, 6)
+  Call browser2.Click(1209, 248)
+  Set cell = table.cellTextRight2
+  Call cell.Click(33, 16)
+  Call cell.Click(32, 16)
+  cell.link.Click
+  Call textNode.Click(60, 15)
+  Call browser2.Click(1220, 251)
+  Set vselect = form.panelFormGroup3.panelColSm9.selectComplianceOption
+  Call vselect.ClickItem("Select..")
+  Call vselect.ClickItem(CompOption)
+  Call page.HoverMouse(1365, 509)
+  Call browser2.Drag(1360, 475, -1, 117)
+  'button.ClickButton
+  'Click the review Button
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/uploadAndShare").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(0).Section(0).Panel(1).Button(0).Click
+  
+  'Call page.HoverMouse(1349, 412)
+  'Call panel.HoverMouse(1327, 685)
+  'Call panel4.HoverMouse(1213, 403)
+  Call panel3.HoverMouse(1181, 39)
+  Call browser2.Drag(1352, 282, -75, -135)
+  CaptureDocs = "pass"
+  Result = CaptureDocs
+  Else 
+  CaptureDocs = "fail"
+  Result = CaptureDocs
+  End If
+
+End Function
+
+
+'Create Client Details
+Function CreateClient(Byval val)
+  Dim Title, Initials, Fullname, PreferName, Surname, Idnumber,TelH, TelW, Cell, Fax, Email
+  Dim Line1, Line2, Line3, City, PostalCode, Province, Country
+  Dim AccHolder, Bank, Branchname, AccType, BranchNum, AccNo
+  Dim TaxPayer, TaxRefNo
+  
+  Excel.WorkSheets("CreateProcess").Activate
+	RowCnt = Excel.ActiveSheet.UsedRange.Rows.Count
+	str1 = str
+'  msgbox str1
+	For b = 2 to RowCnt
+'        msgbox lcase(Excel.Cells(b,1))&" - "&lcase(str1)
+		If lcase(Excel.Cells(b,1)) <> lcase(val) Then
+ '     MsgBox lcase(Excel.Cells(b,1))&" - "& lcase(val1) 
+		 'Move to the next row
+		 Else   
+     'Client Details  
+     Title = Excel.Cells(b,3)
+     Initials = Excel.Cells(b,4)
+     Fullname = Excel.Cells(b,5)
+     PreferName = Excel.Cells(b,6)
+     Surname = Excel.Cells(b,7)
+     Idnumber = Excel.Cells(b,8)
+     TelH = Excel.Cells(b,16)
+     TelW = Excel.Cells(b,17)
+     Cell = Excel.Cells(b,18)
+     Fax = Excel.Cells(b,19)
+     Email = Excel.Cells(b,20)
+      
+		  Exit For	
+		End If		
+	Next
+
+  Dim browser, section, button, form, panel, textbox, panel2, panel3, panel14, panel15, button2, panel16, browser2, panel7
+  Dim from2, emailInput, pagePopup, vselect
+
+'  Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal")
+  Set browser = Aliases.browser
+  Set section = browser.pageNewBusinessCaptureMomentumFi2.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section
+  'Click the View Button to access the 
+  'NameMapping.Sys.Process("iexplore", 3).Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(0).Panel(0).Panel(0).Panel(1).Section(1).Panel(0).Button(0).Click
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(0).Panel(0).Panel(0).Panel(1).Section(1).Panel(0).Button(0).Click
+  
+  Set button = section.buttonCreateAndLoadProcess
+  'button.ClickButton
+  Set form = section.formFormHorizontalNgUntouchedNg
+  Set panel = form.panelFormGroup2
+  
+  IF panel.exists Then
+  
+  Call panel.selectTitle.ClickItem(Title)
+  Set textbox = panel.panelColSm3.textboxInitials
+  'Call textbox.DblClick(33, 13)
+  'Call textbox.Click(33, 13)
+  Call textbox.SetText(Initials)
+  Set panel2 = form.panelFormGroup
+  Set panel3 = panel2.panelColSm9
+  Set textbox = panel3.textboxFullNames
+  Call textbox.DblClick(22, 24)
+  Call textbox.SetText(Fullname)
+  Set panel4 = form.panelFormGroup3
+  Set textbox = panel4.panelColSm9.textboxPreferredName
+  Call textbox.Click(34, 25)
+  Call textbox.SetText(PreferName)
+  Set panel5 = form.panelFormGroup4
+  Set textbox = panel5.panelColSm9.textboxSurname
+  Call textbox.DblClick(31, 12)
+  Call textbox.SetText(Surname)
+  Set button2 = form.buttonRsaIdNumber
+  button2.ClickButton
+  form.buttonPassportNumber.ClickButton
+  button2.ClickButton
+  Set panel6 = form.panel.panelFormGroup
+  Set textbox = panel6.panelColSm9.textboxIdNumber
+  Call textbox.DblClick(54, 22)
+  Call textbox.SetText(Idnumber)
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+  Call browser2.Drag(1360, 335, 5, 99)
+  Set panel7 = form.panelFormGroup6
+  Set button2 = panel7.buttonSouthAfrican
+  button2.ClickButton
+  panel7.panelColSm3Radio.buttonNonSouthAfrican.ClickButton
+  button2.ClickButton
+  form.buttonMale.ClickButton
+  form.buttonFemale.ClickButton
+  Set form2 = form.formFormHorizontalNgUntouchedNg
+  form2.buttonYes.ClickButton
+  Call browser2.Drag(1358, 313, 7, 80)
+  Set panel7 = form2.panelFormGroup.panelFormDynamicSectionNoMargin.panelFormGroup
+  Call panel7.panelCheckboxColSm6.checkboxHeadOfState.ClickButton(cbChecked)
+  Call panel7.panelCheckboxColSm62.checkboxSeniorJudge.ClickButton(cbChecked)
+  Call panel7.panelCheckboxColSm63.checkboxSeniorRepresentativeOfAR.ClickButton(cbChecked)
+  Call panel7.panelCheckboxColSm64.checkboxCabinetMinister.ClickButton(cbChecked)
+  Call browser2.Drag(1354, 358, 8, 72)
+  'Click the Update Button
+  
+  'Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(0).Panel(1).Panel(0).Panel(0).Form(0).Panel(9).Panel(0).Button(0).Click
+  sys.HighlightObject(Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(0).Panel(1).Panel(0).Panel(0).Form(0).Panel(9).Panel(0).Button(0))
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(0).Panel(1).Panel(0).Panel(0).Form(0).Panel(9).Panel(0).Button(0).Click
+  'Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(1).Panel(1).Panel(0).Panel(0).Button(0).Click
+  sys.HighlightObject(Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(0).Panel(1).Panel(0).Panel(0).Form(0).Panel(9).Panel(0).Button(0))
+  Call browser2.Drag(1359, 461, 3, 61)
+  Set panel7 = section.panelContainer.panelColSm12.section.panelFormHorizontal
+  Call panel7.panelPanelPanelDefault.panelPanelHeading.panelContactDetails.Click(550, 15)
+  Set button2 = form.buttonEnglish
+  button2.ClickButton
+  form.buttonAfrikaans.ClickButton
+  button2.ClickButton
+  Call browser2.Drag(1354, 229, 2, 87)
+  panel2.panelColSm2Radio.buttonPost.ClickButton
+  panel3.buttonEmail.ClickButton
+  Set textbox = panel4.panelColSm4.textboxTelephoneW
+  Call textbox.Click(33, 14)
+  Call textbox.SetText(TelW)
+  Set textbox = panel4.panelColSm42.textboxHometelephone
+  Call textbox.Click(53, 22)
+  Call textbox.SetText(TelH)
+  Set panel2 = panel5.panelColSm4
+  Set textbox = panel2.textboxCellphone
+  Call textbox.Click(180, 28)
+  Call textbox.SetText(Cell)
+  Set textbox = panel5.panelColSm42.textboxFax
+  Call textbox.Click(52, 26)
+  Call textbox.SetText(Fax)
+  Set panel4 = form.panelFormGroup5.panelColSm4
+  Set emailInput = panel4.emailinputEmail
+  Call emailInput.Click(202, 31)
+  Call emailInput.SetText(Email)
+  Call browser2.Drag(1358, 346, 7, 101)
+  Call browser2.Drag(1361, 436, 2, 37)
+  Call form.formFormNgUntouchedNgPristineN2.checkboxSameAsPhysicalAddress.ClickButton(cbChecked)
+  Set form2 = form.formFormNgUntouchedNgPristineN
+  Set textbox = form2.panelFormGroup.panelColSm8.textboxLine1
+  Call textbox.Click(92, 24)
+  Call textbox.SetText(Excel.Cells(b,21))
+  Set textbox = form2.panelFormGroup2.panelColSm8.textboxLine2
+  Call textbox.Click(61, 22)
+  Call textbox.SetText(Excel.Cells(b,22))
+  Set textbox = form2.panelFormGroup3.panelColSm8.textboxLine3
+  Call textbox.Click(40, 24)
+  Call textbox.SetText(Excel.Cells(b,23))
+  Set textbox = form2.panelFormGroup4.panelColSm8.textboxCity
+  Call textbox.Click(23, 17)
+  Call textbox.SetText(Excel.Cells(b,24))
+  Set textbox = form2.panelFormGroup5.panelColSm8.textboxPostalCode
+  Call textbox.Click(31, 23)
+  Call textbox.SetText(Excel.Cells(b,25))
+  Set textbox = form2.panelFormGroup6.panelColSm8.textboxProvince
+  Call textbox.Click(30, 13)
+  Call textbox.SetText(Excel.Cells(b,26))
+  Call form2.selectCountry.ClickItem(Excel.Cells(b,27))
+  Call browser2.Drag(1356, 465, -3, 61)
+  'CLick the Update Button
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(0).Panel(1).Panel(0).Panel(0).Form(0).Panel(9).Panel(0).Button(0).Click
+  'button.ClickButton
+  Call browser2.DblClick(1356, 633)
+  Call browser2.Click(1356, 633)
+  Call panel7.panelPanelPanelDefault2.panelPanelHeading.panelBankingDetails.Click(359, 12)
+  Set vselect = form.selectAccountHolderRelationship
+  accholder = Excel.Cells(b,29) 
+ ' MsgBox ""&Excel.Cells(b,29)&""
+  Call vselect.ClickItem(accholder)
+   Set vselect = panel3.selectBankName
+  Call vselect.ClickItem("Select...")
+  BankNm = Excel.Cells(b,30)
+  'MsgBox ""&Excel.Cells(b,30)&""
+  Call vselect.ClickItem(BankNm)
+  Call browser2.Drag(1358, 347, 7, 81)
+  Call browser2.Drag(1359, 410, -1, 45)
+  Set vselect = form.selectBranchName
+  Call vselect.ClickItem("Select...")
+ ' MsgBox Excel.Cells(b,31)
+  Branch = Excel.Cells(b,31)
+  Call vselect.ClickItem(Branch)
+  accty = Excel.Cells(b,32)
+  Call form.selectAccountType.ClickItem(accty)
+  Set textbox = panel4.textboxBranchNumber
+  Call textbox.Click(304, 4)
+  Call textbox.DblClick(304, 4)
+  Call textbox.Click(304, 4)
+  Set textbox = panel6.textboxAccountNumber
+  Call textbox.Click(199, 22)
+  accn = Excel.Cells(b,34)
+  Call textbox.SetText(accn)
+  'Click the Update button on the Banking Details Page
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(2).Panel(1).Panel(0).Click
+  'button.ClickButton
+  Call browser2.Drag(1356, 453, 0, 101)
+  Call panel7.panelPanelPanelDefault3.panelPanelHeading.panelTaxDetails.Click(87, 30)
+  Call browser2.Drag(1357, 296, -20, 169)
+  panel.buttonNo.ClickButton
+  panel.buttonYes.ClickButton
+  Set textbox = panel3.textboxSarsTaxReference
+  Call textbox.Click(35, 23)
+  Call textbox.SetText(Excel.Cells(b,37))
+  Call browser2.Drag(1362, 370, 3, 90)
+  Set button2 = panel2.buttonNo
+  button2.ClickButton
+  Set panel = panel2.panelColSm3ColMd2Radio
+  Call panel.Drag(12, 20, 7, 1)
+  panel.buttonYes.ClickButton
+  button2.ClickButton
+  panel5.buttonNo.ClickButton
+  'Click the Update Button
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(3).Panel(1).Panel(0).Panel(0).Form(0).Button(0).Click
+  'button.ClickButton
+  Call browser2.Drag(1359, 454, 4, 95)
+  'Click the Product Details
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(1).Button(0).Click
+'  button.ClickButton
+  'Clicking the Save and Continue Button
+  set SaveContinue = Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(2).Button(1)
+  
+  if SaveContinue.Exists Then
+    SaveContinue.Click
+  End if 
+    CreateClient = "pass"
+    Result = CreateClient
+  Else 
+    CreateClient = "fail"
+    Result = CreateClient
+  End If 
+
+End Function
+Function ProcessUpdate(Byval test)
+
+  Set browser = Aliases.browser
+  Set section = browser.pageNewBusinessCaptureMomentumFi2.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section
+  Set panel = section.formFormHorizontalNgUntouchedNg.panelFormGroup
+  Call panel.panelCheckboxColSm3.checkboxCreateNewProcess.ClickButton(cbChecked)
+  Set textbox = panel.textboxProcessId
+  Call textbox.Click(81, 17)
+  Call textbox.SetText("126545465")
+  Call browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser.Drag(1356, 322, 7, 165)
+  Set button = section.panelContainer.panelPanelBody.buttonCreateAndLoadProcess
+  Call button.DblClick(74, 13)
+  button.ClickButton
+
+
+End Function
+
+
+'This function is for capturing the Process
+Function CreateProcess(Byval test)
+Dim Processid
+
+	Excel.WorkSheets("CreateProcess").Activate
+	RowCnt = Excel.ActiveSheet.UsedRange.Rows.Count
+'	str1 = str
+ ' msgbox str1
+	For b = 2 to RowCnt
+'        msgbox lcase(Excel.Cells(b,1))&" - "&lcase(str1)
+		If lcase(Excel.Cells(b,1)) <> lcase(test) Then
+ '     MsgBox lcase(Excel.Cells(b,1))&" - "& lcase(val1) 
+		 'Move to the next row
+		 Else     
+     Processid = Excel.Cells(b,2)
+		  Exit For	
+		End If		
+	Next
+  
+ Dim browser, section, panel, textbox, browser2
+ 
+  'Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/processSearch")
+  Set browser = Aliases.browser
+  Set section = browser.pageNewBusinessCaptureMomentumFi2.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section
+  Set panel = section.formFormHorizontalNgUntouchedNg.panelFormGroup
+  Call panel.panelCheckboxColSm3.checkboxCreateNewProcess.ClickButton(cbChecked)
+  'Set textbox = panel.panelColSm9.textboxProcessId
+   Set textbox = panel.textboxProcessId  
+  If textbox.Exists Then
+  
+  'Call textbox.Click(23, 25)
+  Call textbox.SetText(Processid)
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+  Call browser2.Drag(1356, 346, 9, 168)
+  aqUtils.Delay 1000
+  'Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/processSearch", 1).Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Button(0).Click
+  section.buttonCreateAndLoadProcess.DblClick
+    if section.buttonCreateAndLoadProcess.Exist Then
+     section.buttonCreateAndLoadProcess.ClickButton
+    End If 
+   CreateProcess = "pass"
+   Result = CreateProcess
+  Else 
+   CreateProcess = "fail"
+   Result = CreateProcess 
+  End IF
+  
+   aqUtils.Delay 1050
+End Function
+
+'This funcyion is for Role Player
+Function RolePlayer(Byval test)
+  Dim SourceOfIncome, Employer, SourceOfFunds, NameOfEmp, FSPHouseCode, FinAdvCode
+  Dim Fullname, Surname, Tel, Cell, Email, Declare
+  
+	Excel.WorkSheets("RolePlayer").Activate
+	RowCnt = Excel.ActiveSheet.UsedRange.Rows.Count
+'	str1 = str
+ ' msgbox str1
+	For b = 2 to RowCnt
+'        msgbox lcase(Excel.Cells(b,1))&" - "&lcase(str1)
+		If lcase(Excel.Cells(b,1)) <> lcase(test) Then
+ '     MsgBox lcase(Excel.Cells(b,1))&" - "& lcase(val1) 
+		 'Move to the next row
+		 Else     
+     Processid = Excel.Cells(b,2)
+		  Exit For	
+		End If		
+	Next
+
+
+
+Dim browser, page, panel, section, form, panel2, form2, textbox, browser2, panel3, vselect, panel4, button, textbox2, panel5,textbox3
+Dim phoneInput, button2, textNode
+
+'  Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails")
+  Set browser = Aliases.browser
+  Set page = browser.pageNewBusinessCaptureMomentumFi2
+  Set panel = page.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel
+  Set section = panel.panelContainer.section
+  Set form = section.formFormHorizontalNgUntouchedNg
+  Call form.panelFormGroup2.buttonYes2.DblClick(6, 14)
+  Set panel2 = section.panelContainer.panelColSm12.section.panelFormHorizontal
+  
+  Call panel2.panelPanelPanelDefault.panelPanelHeading.panelContactDetails.Click(1069, 26)
+  Set form2 = form.formFormNgUntouchedNgPristineN
+  
+  If form2.Exists Then
+  SourceOfIncome = Excel.Cells(b,2)
+  Call form2.panel.panelFormGroup.panelColSm9.selectSourceOfIncome.ClickItem(SourceOfIncome)
+  Set textbox = form2.panelFormGroup.panelColSm8.textboxNameOfEmployer
+  Call textbox.Click(68, 17)
+  Employer = Excel.Cells(b,3)
+  Call textbox.SetText(Employer)
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+  Call browser2.Drag(1354, 316, -1, 131)
+  Set panel3 = form.panelFormGroup3.panelColSm9
+  Set vselect = panel3.selectSourceOfFunds
+  Call vselect.ClickItem("Select..")
+  SourceOfFunds = Excel.Cells(b,4)
+  Call vselect.ClickItem(SourceOfFunds)
+  Call textbox.Click(92, 16)
+'  Call browser2.DblClick(1353, 637)
+ ' Call browser2.Click(1353, 637)
+ NameOfEmp = Excel.Cells(b,5)
+ ' Call textbox.Click(47, 29)
+  Call textbox.SetText(NameOfEmp)
+  Set panel4 = form.panelFormGroup5.panelColSm4
+  Set button = panel4.buttonNo
+  Call button.DblClick(7, 24)
+  panel4.buttonYes.ClickButton
+  'button.ClickButton
+  'Click the Update Button
+  'Set button = section.buttonCreateAndLoadProcess
+  '
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(1).Panel(1).Panel(0).Panel(0).Form(0).Button(0)
+  'button.ClickButton
+  'Call page.HoverMouse(1349, 357)
+  'Call panel.HoverMouse(1338, 606)
+  'Call browser2.Drag(1352, 377, 1, 57)
+  Call panel2.panelPanelPanelDefault2.panelPanelHeading.panelBankingDetails.Click(207, 19)
+  'Call browser2.Drag(1355, 225, 10, 126)
+  'button.ClickButton
+  Call browser2.Drag(1354, 296, 11, 41)
+  Set textbox = form2.panelFormGroup7.panelFormGroup.panelColSm6.panelColSm8.textboxFspHouseCode
+  Call textbox.Click(153, 14)
+  'Call textbox.DblClick(153, 14)
+  Set textbox2 = form.formFormHorizontalNgUntouchedNg.panelFormGroup.panelFormDynamicSectionNoMargin.panelFormGroup.textboxFinancialAdviserCode
+  'Call textbox2.DblClick(97, 18)
+  Call textbox2.Click(97, 18)
+  Set panel5 = form2.panelFormGroup2.panelColSm8.panelColSm8
+  Set textbox3 = panel5.textboxMarketingAdviserCode
+  'Call textbox3.DblClick(64, 19)
+  Call textbox3.Click(64, 19)
+  Call textbox.DblClick(106, 16)
+  'Assign FSP House Code
+  FSPHouseCode = Excel.Cells(b,13) 
+  Call textbox.SetText(FSPHouseCode)
+  Call textbox.Click(106, 16)
+  'Call textbox2.DblClick(79, 28)
+  Call textbox2.Click(79, 28)
+  'Assign Financial Advice Code
+  FinAdvCode = Excel.Cells(b,14)
+  Call textbox2.SetText("065555")
+  Call textbox.Click(73, 22)
+  'Call textbox3.DblClick(98, 19)
+  Call textbox3.Click(98, 19)
+  'Call browser2.DblClick(1353, 641)
+  'Call browser2.DblClick(1353, 641)
+  'Call browser2.Click(1353, 641)
+  Set textbox = form.panelFormGroup.panelColSm9.textboxFullNames2
+  Call textbox.Click(110, 20)
+  Fullname = Excel.Cells(b,16)
+  Call textbox.SetText(Fullname)
+  Call textbox.Keys("[Tab]")
+  Surname = Excel.Cells(b,17)
+  Call panel3.textboxSurname.SetText(Surname)
+  Set phoneInput = panel2.panelPanelPanelDefault3.panelPanelHeading.phoneinputContacttelephoneinput
+  Call phoneInput.Click(64, 21)
+  Tel = Excel.Cells(b,18)
+  Call phoneInput.SetText(Tel)
+  Set phoneInput = form.panelFormGroup4.panelColSm9.phoneinputContactcellphoneinput
+  Call phoneInput.Click(43, 24)
+  Cell = Excel.Cells(b,19)
+  Call phoneInput.SetText(Cell)
+  Set textbox = panel4.textboxEmail
+  Call textbox.Click(327, 19)
+  Email = Excel.Cells(b,20)
+  Call textbox.SetText(Email)
+  Call browser2.Drag(1353, 395, 8, 41)
+  Set button2 = form.panel.panelFormGroup.buttonYes  
+  button2.ClickButton
+  button2.ClickButton
+    'Click the Update Button
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(2).Panel(1).Panel(0).Panel(0).Form(0).Button(0).Click
+ ' button.ClickButton
+  'Call page.HoverMouse(1360, 398)
+
+  'Click the Documents Button
+  'aqUtils.Delay 1000
+  'Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(1).Button(0).Click  
+
+    Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(2).Panel(1).Panel(0).Panel(0).Form(0).Button(0).Click
+    'aqUtils.Delay 2000
+    ' obj.Click
+    sys.HighlightObject(Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(1).Button(0))
+    '  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(1).Button(0)
+    Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(1).Button(0).Click
+    'set val = Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/uploadAndShare").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(2).Button(1)
+    set val1 = Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(0)
+    aqUtils.Delay 3000
+    sys.HighlightObject(val1)
+    if val1.Exists Then
+    aqUtils.Delay 0500
+
+  'MsgBox "Exist"
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(2).Button(1).Click
+  Else
+  Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(2).Button(1).Click
+  MsgBox "Not found"
+
+  End If
+  
+  RolePlayer = "pass"
+  Result = RolePlayer
+  Else
+  RolePlayer = "fail"
+  Result = RolePlayer
+  End IF
+  
+End Function
+'
+''''''
+'Section for the Functions that will be used for Test Automation
+'This function is for logging into the application
+'Designed by Kekan a JM - 2017 05 23 it takes one parameter environment
+Function LogIn(ByVal str)
+  Dim Brow, Url, User, Passw
+	'Excel.ActiveSheet("Logged").Activate
+  'On Error Resume Next
+	Excel.WorkSheets("Logged").Activate
+	RowCnt = Excel.ActiveSheet.UsedRange.Rows.Count
+	str1 = str
+'  msgbox str1
+	For b = 2 to RowCnt
+'        msgbox lcase(Excel.Cells(b,1))&" - "&lcase(str1)
+		If lcase(Excel.Cells(b,1)) <> lcase(str1) Then
+ '     MsgBox lcase(Excel.Cells(b,1))&" - "& lcase(val1) 
+		 'Move to the next row
+		 Else
+     
+     User = Excel.Cells(b,2)
+     Passw = Excel.Cells(b,3)
+     Brow = Excel.Cells(b,4)
+     Url = Excel.Cells(b,5)
+'     MsgBox User &" "&Passw&" "&Brow&" "&Url
+
+		  Exit For	
+		End If		
+	Next
+
+     
+    Dim browser, form, textbox, passwordBox
+
+    'WshShell.run "iexplore.exe"
+    'aqUtils.Delay 1500
+    Browsers.Item("iexplore").Run()
+    aqUtils.Delay 2000
+
+    'Maximize the screen
+    Sys.Browser().BrowserWindow(0).Maximize
+    'Re Direct to the correct screen
+    Call Browsers.Item(btIExplorer, "", Browsers.pX64).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/")
+    Set browser = Aliases.browser
+    Set form = browser.pageLoginMomentumFinancialAdvise.sectionTopMargin80Desktop.panelContainerFluidMaxWidth.panelRow.panelComponentControlIdZ7Cgah47l.sectionIbmportalcontrolWpthemeno.formLoginform
+    aqUtils.Delay 2000
+    
+   ' Call Browsers.Item(btIExplorer, "", Browsers.pX64).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/")
+    if form.Exists Then
+    'Login page exist
+    Set textbox = form.textboxUsername
+    Call textbox.Click()
+    'sys.HighlightObject(textbox)
+    Call textbox.SetText(User)
+    Set passwordBox = form.passwordboxPassword
+    Call passwordBox.Click()
+    
+    Call passwordBox.SetText(Passw)
+    form.buttonLogin.ClickButton
+    aqUtils.Delay 2000
+    Else
+    'Login Page does not exist
+    End if 
+    'Redirect to the nbc URL
+    Call Browsers.Item(btIExplorer, "", Browsers.pX64).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/")
+    'Check if you have logged into the successfully
+   ' Set section = browser.pageNewBusinessCaptureMomentumFi.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section
+    
+   ' Set form = section.formFormHorizontalNgUntouchedNg
+    aqUtils.Delay 2000
+    
+    'sys.HighlightObject(pageNewBusinessCaptureMomentumFi)
+    'browser.pageNewBusinessCaptureMomentumFi.Highlight
+    aqUtils.Delay 4000
+    'browser.pageNewBusinessCaptureMomentumFi.WaitProperty
+    
+    Set chk = Sys.Browser("iexplore").Page("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcHZ3cDBzNTb1DA809jAw8jIAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwqvEgNjDAWYTgQrwOOGgtzQCINMT0UAY1As6Q!!/#/investment-proposal/processSearch").Section(0).Panel(1).Panel(0).Panel("ibmMainContainer").Panel(0).Section(0).Panel(0).Panel(0).Panel(0).Section(0).Panel(1).Panel(0)
+    
+    if Aliases.browser.pageNewBusinessCaptureMomentumFi2.headerTop.Exists Then
+    	LogIn = "pass"
+	    Result =  LogIn 
+      Log.Message "Logged in successfully"
+      Log.Picture Sys.Desktop.ActiveWindow, "Was able to login", "Was able to login", pmHighest
+'      MsgBox "Logged In"
+      Else
+      	LogIn = "fail"
+	      Result =  LogIn 
+           Set browser = Aliases.browser
+           Log.Picture Sys.Desktop.FocusedWindow,"Not able to login","Not able to login successfully", pmHigher
+           
+           Log.Message "Not logged in successfully"
+        ' Log.Picture Sys.Desktop.ActiveWindow, "User not able to login", "User not able to login", pmHighest
+'          browser.BrowserWindow.Close
+          Msgbox "Not logged in"
+    End If  
+    aqUtils.Delay 2000  	
+
+End Function
+
+'Mock Function for Testing Flow
+Function Testing(ByVal val1)
+'This function is for logging into the application
+	'Excel.ActiveSheet("Testing").Activate
+  On Error Resume Next
+	Excel.WorkSheets("Testing").Activate
+	RowCnt = Excel.ActiveSheet.UsedRange.Rows.Count
+	
+	For b = 1 to RowCnt
+		If lcase(Excel.Cells(b,2)) <> lcase(val1) Then
+		 'Move to the next row
+		 Else
+		  Exit For	
+		End If		
+	Next   
+	
+	Testing = "fail"
+	Result = Testing 
+	'Get the reason for failure for failure if there is such
+End Function
+'This function is for logging out of the application
+'It will close the application based on the browser that has been selected
+'Designed by Kekana JM
+Function Logout(ByVal Brow)
+Result = "fail"
+On Error Resume Next  
+	Excel.WorkSheets("Loggedout").Activate
+	RowCnt = Excel.ActiveSheet.UsedRange.Rows.Count
+	
+	For b = 2 to RowCnt
+		If lcase(Excel.Cells(b,1)) <> lcase(Brow) Then
+		 'Move to the next row
+		 Else
+		  Exit For	
+		End If		
+	Next  
+'Check to see if the Browser name is a specific one  
+aqUtils.Delay 3000 
+msgbox "Closing"
+'Sys.Browser(Brow).Close
+
+
+'  Call Browsers.Item(btIExplorer, "", Browsers.pX64).Run("http://www.msn.com/en-za/?ocid=iehp")
+  'Closes the 'BrowserWindow' window.
+  Set browser = Aliases.browser
+  if browser.pageNewBusinessCaptureMomentumFi2.headerTop.Exists Then 
+    Aliases.browser.pageNewBusinessCaptureMomentumFi2.headerTop
+   Call browser.pageNewBusinessCaptureMomentumFi2.headerTop.ClickItem("Logout")
+   'browser.BrowserWindow.Close
+   
+      Logout = "pass"
+      Result = Logout
+      Log.Picture Sys.Desktop.ActiveWindow, "able to logout", "able to logout", pmHighest
+      log.Message "User logged out successfully"
+   Else
+      Logout = "fail"
+      Result = Logout
+      log.Message "User logged in successfully"
+      Log.Picture Sys.Desktop.ActiveWindow, "Not able to logout", "Not able to logout", pmHighest
+   End If
+
+End Function
+
+Function CreateProcess2(Byval Brow)
+  Dim browser,section ,form, textbox, browser2, panel, button,table
+  Dim Processid, Title, Initials, Fullname, Surname, PreferredName, Idnumber, Nationality, Gender
+  Result = "pass"
+  On Error Resume Next  
+	Excel.WorkSheets("CreateProcess").Activate
+	RowCnt = Excel.ActiveSheet.UsedRange.Rows.Count
+	
+	For b = 2 to RowCnt
+		If lcase(Excel.Cells(b,1)) <> lcase(Brow) Then
+		 'Move to the next row
+		 Else
+     Processid = Excel.Cells(b,2)
+     Title = Excel.Cells(b,3)
+     Initials = Excel.Cells(b,4)
+     Fullname = Excel.Cells(b,5)
+     PreferredName = Excel.Cells(b,6)
+     Surname =  Excel.Cells(b,7)
+     Idnumber = Excel.Cells(b,8)
+     
+		 Exit For	
+		End If		
+	Next 
+    
+  
+  Call Browsers.Item(btIExplorer, "", Browsers.pX64).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/")
+  'Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/processSearch")
+  
+ ' Dim section1, form1
+ ' Set section1 = Aliases.browser.pageNewBusinessCaptureMomentumFi.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section
+ ' Set form1 = section1.formFormHorizontalNgUntouchedNg
+ ' form1.panelFormGroup3.panelAlertAlertSuccess.buttonProcess.ClickButton
+  'section1.panelContainer.panelPanelBody.panelColSm12.buttonTask.ClickButton
+  'form1.panelCheckboxColSm3.checkboxCreateNewProcess.ClickButton
+  
+ ' Call Aliases.browser.pageNewBusinessCaptureMomentumFi.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section.formFormHorizontalNgUntouchedNg.panelFormGroup3.panelAlertAlertSuccess.buttonProcess.ClickButton(wChecked)
+  
+  Set browser = Aliases.browser
+  Set section = browser.pageNewBusinessCaptureMomentumFi.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section
+  Set form = section.formFormHorizontalNgUntouchedNg
+  aqUtils.Delay 1200
+  pageNewBusinessCaptureMomentumFi
+  
+  if pageNewBusinessCaptureMomentumFi.Exists Then
+  
+  Call form.panelCheckboxColSm3.checkboxCreateNewProcess.ClickButton(cbChecked)
+  Set textbox = form.textboxProcessId
+  Call textbox.Click()
+  Call textbox.SetText(Processid)
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+ ' Call browser2.Drag(1358, 411, 7, 189)
+  Set panel = section.panelContainer.panelPanelBody
+  'panel.buttonCreateAndLoadProcess.ClickButton
+  aqUtils.Delay 2000
+  panel.buttonCreateAndLoadProcess.DblClick
+  aqUtils.Delay 100
+  panel.panelBodyPaddingRow.panelColSm12.panelCardContent.sectionPanelFooter.buttonView.ClickButton
+  Set section = panel.panelColSm12.section
+  Set form = section.formFormHorizontalNgUntouchedNg
+  Call form.selectTitle.ClickItem(Title)
+  Set textbox = form.textboxInitials
+  Call textbox.Click()
+  Call textbox.SetText(Initials)
+  Set textbox = form.textboxFullNames
+  Call textbox.Click()
+  Call textbox.SetText(Fullname)
+  Set textbox = form.textboxPreferredName
+  'Call textbox.Click(59, 10)
+  Call textbox.SetText(PreferredName)
+  Set textbox = form.textboxSurname
+  'Call textbox.Click(34, 23)
+  Call textbox.SetText(Surname)
+  Set textbox = form.textboxIdNumber
+ ' Call textbox.Click(28, 18)
+  Call textbox.SetText(Idnumber)
+  'Call browser2.Drag(1358, 349, 7, 143)
+  form.buttonSouthAfrican.ClickButton
+  'Call browser2.Click(1360, 450)
+  form.buttonMale.ClickButton
+
+  form.formFormHorizontalNgUntouchedNg.buttonNo.ClickButton
+  Set button = form.buttonUpdate
+  button.ClickButton 
+  ProcessFlow()
+  RolePlayer()
+    
+  Else
+  
+  
+  End If 
+  'ProcessFlow()
+  Log.Picture Sys.Desktop.ActiveWindow, "Not able to capture Client Details", "Not able to capture Client Details", pmHighest
+End Function 
+
+Function ProcessFlow()
+
+Dim browser
+  Dim page
+  Dim panel
+  Dim section
+  Dim panel2
+  Dim section2
+  Dim panel3
+  Dim browser2
+  Dim form
+  Dim button
+  Dim panel4
+  Dim textbox
+  Dim emailInput
+  Dim vselect
+  Dim textNode
+  Dim button2
+  Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails")
+  Set browser = Aliases.browser
+  Set page = browser.pageNewBusinessCaptureMomentumFi
+  Set panel = page.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel
+  Set section = panel.panelContainer.section
+  Set panel2 = section.panelContainer.panelPanelBody
+  Set section2 = panel2.panelColSm12.section
+  Set panel3 = section2.panelFormHorizontal
+  Call panel3.panelPanelPanelDefault2.panelPanelHeading.panelContactDetails.Click(390, 22)
+'  Call page.HoverMouse(1355, 225)
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+ ' Call browser2.Drag(1353, 288, 4, -122)
+  Set form = section.formFormHorizontalNgUntouchedNg
+  form.buttonEnglish.ClickButton
+  form.buttonAfrikaans.ClickButton
+  Set button = form.buttonEmail
+  button.ClickButton
+  form.buttonPost.ClickButton
+  button.ClickButton
+  Set panel4 = form.panelCheckboxColSm3
+  Set textbox = panel4.textboxTelephoneW
+  Call textbox.Click(31, 16)
+  Dim TelH 
+  TelH =  "Testing"
+  'TelH = Excel.Cells(b,16)
+  Call textbox.SetText("0123294562")
+  Set textbox = panel4.textboxHometelephone
+  Call textbox.Click(43, 21)
+  Call textbox.SetText(TelH)
+  Set textbox = form.textboxCellPhone
+  Call textbox.Click(205, 23)
+  Call textbox.SetText("0732098048")
+  Set textbox = form.panelFormGroup.textboxFax
+  Call textbox.Click(21, 28)
+  Call textbox.SetText("0864562138")
+  Set emailInput = form.emailinputEmail
+  Call emailInput.Click(119, 23)
+  Call emailInput.SetText("joe_kekana@yahoo.com")
+  'Call browser2.Drag(1357, 349, 8, 141)
+  Call form.panelFormGroup2.checkboxSameAsPhysicalAddress.ClickButton(cbChecked)
+  Set textbox = form.textboxLine1
+  Call textbox.Click(63, 26)
+  Call textbox.SetText("112")
+  Set textbox = form.textboxLine2
+  Call textbox.Click(25, 28)
+  Call textbox.SetText("1256 Vos Street")
+  Set textbox = form.textboxCity
+  Call textbox.Click(25, 18)
+  Call textbox.SetText("Johannesburg")
+  Set textbox = form.textboxPostalCode
+  Call textbox.Click(44, 16)
+  Call textbox.SetText("0002")
+  Set textbox = form.textboxProvince
+  Call textbox.Click(59, 10)
+  Call textbox.SetText("Gauteng")
+  Set vselect = form.selectCountry
+  Call vselect.ClickItem("Select..")
+  Call vselect.ClickItem("South Africa")
+ ' Call browser2.Drag(1360, 439, 5, 73)
+  Set button = panel2.buttonCreateAndLoadProcess
+  button.ClickButton
+  Call page.HoverMouse(1347, 411)
+  Call panel.HoverMouse(1343, 668)
+  Call browser2.Drag(1359, 461, -34, -217)
+  Set panel = form.panel.panelContactDetailsSaved
+  Call panel.DblClick(103, 8)
+  Call panel.Click(103, 8)
+  panel3.panelPanelPanelDefault4.panelPanelHeading.panelBankingDetails.Click
+  Call browser2.Drag(1354, 311, 11, 144)
+  Call form.selectAccountHolderRelationship.Click(713, 14)
+  Call browser.pagepopup0.Click(611, 16)
+  Set vselect = form.selectBankName
+  Call vselect.ClickItem("Select...")
+  Call vselect.ClickItem("Firstrand Bank")
+  Set vselect = panel4.selectBranchName
+  Call vselect.ClickItem("Select...")
+  Call vselect.ClickItem("South Africa")
+  Set vselect = form.selectAccountType
+  Call vselect.ClickItem("Select...")
+  Call vselect.ClickItem("Check account")
+  Set textbox = form.textboxBranchNumber
+  Call textbox.DblClick(95, 26)
+  Call textbox.Click(96, 21)
+  Call browser2.Drag(1353, 439, 12, 44)
+  Set textbox = form.textboxAccountNumber
+  Call textbox.Click(408, 24)
+  Call textbox.SetText("62066789623")
+  button.ClickButton
+  Call panel.DblClick(115, 12)
+  Call panel.Click(115, 12)
+  Call browser2.Drag(1361, 414, -3, 100)
+  Call panel3.panelPanelPanelDefault3.panelPanelHeading.panelTaxDetails.Click(75, 24)
+  Call browser2.Drag(1362, 258, 3, 225)
+  Set textNode = form.legend.textnodeSouthAfrica
+  Call textNode.DblClick(84, 12)
+  Call textNode.Click(84, 12)
+  Call textNode.DblClick(84, 12)
+  Call textNode.Click(84, 12)
+  Set panel2 = form.panelFormGroup3
+  Set button2 = panel2.buttonYes
+  button2.ClickButton
+  panel2.buttonNo.ClickButton
+  button2.ClickButton
+  Set textbox = form.textboxSarsTaxReference
+  Call textbox.Click(14, 15)
+  Call textbox.SetText("1652506154")
+  Call textbox.Click(413, 28)
+  Call textbox.Click(413, 27)
+  Call browser2.Drag(1360, 381, 3, 23)
+  form.buttonNo.ClickButton
+  form.buttonNo2.ClickButton
+  button.ClickButton
+  Call browser2.Drag(1355, 468, -7, -54)
+  Call panel.DblClick(69, 12)
+  Call panel.Click(69, 12)
+  Call panel.DblClick(69, 12)
+  Call panel.Click(69, 12)
+  Call browser2.Drag(1352, 391, 13, 116)
+  section2.linkGoToProductDetails.Click  
+  'Click the Save and Continue Button
+'  Call Aliases.explorer.wndTaskListThumbnailWnd.Click(731, 175)
+  Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/clientDetails")
+  Set browser = Aliases.browser
+  Set page = browser.pageNewBusinessCaptureMomentumFi
+  Set panel = page.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel
+  Set section = panel.panelContainer.section
+  Set panel2 = section.panelContainer.panelPanelBody
+  Set button = panel2.buttonCreateAndLoadProcess
+  if button.ClickButton Then
+  button.ClickButton
+  MsgBox "Button Clicked"
+
+  End If
+
+End Function
+'End Function
+
+
+'Create Process
+Function CreateProc(Byval Brow)
+Dim Processid
+  Result = "pass"
+  On Error Resume Next  
+	Excel.WorkSheets("ProcessId").Activate
+	RowCnt = Excel.ActiveSheet.UsedRange.Rows.Count
+	
+	For b = 2 to RowCnt
+		If lcase(Excel.Cells(b,1)) <> lcase(Brow) Then
+		 'Move to the next row
+		 Else
+     Processid = Excel.Cells(b,2)
+     
+		 Exit For	
+		End If		
+	Next 
+
+
+
+  Dim browser
+  Dim section
+  Dim panel
+  Dim textbox
+  Dim panel2
+  Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcQ4wtDRyd_A2DHD2cjAwszYAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwpViYWTmbmBo5dTgK-7IdAEC0N0BVicCFaAxw0FuaERBpmeigDLJOym/#/investment-proposal/processSearch")
+  Set browser = Aliases.browser
+  Set section = browser.pageNewBusinessCaptureMomentumFi.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section
+  Set panel = section.formFormHorizontalNgUntouchedNg.panelFormGroup4
+  Call panel.panelCheckboxColSm3.checkboxCreateNewProcess.ClickButton(cbChecked)
+  Set textbox = panel.textboxProcessId
+  Call textbox.Click(40, 22)
+  'Pass the Process Id from the Excel Sheet
+  Call textbox.SetText(Processid)
+  Call browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser.Drag(1357, 240, 8, 217)
+  Set panel = section.panelContainer.panelPanelBody
+  panel.buttonCreateAndLoadProcess.ClickButton
+  Set panel2 = panel.panelBodyPaddingRow.panelColSm12.panelCardContent
+  Call panel2.sectionPanelBodyCardHeight.panelRow.panelResponsiveTable.Click(418, 268)
+  panel2.sectionPanelFooter.buttonView.ClickButton
+  
+
+End Function 
+
+
+Sub Test1
+  Dim browser
+  Dim section
+  Dim panel
+  Dim textbox
+  Dim browser2
+  Dim button
+  Dim form
+  Dim form2
+  Dim panel2
+  Dim panel3
+  Dim emailInput
+  Dim vselect
+  Dim button2
+  Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcHZ3cDBzNTb1DA809jAw8jIAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwqvEgNjDAWYTgQrwOOGgtzQCINMT0UAY1As6Q!!/#/investment-proposal/processSearch")
+  Set browser = Aliases.browser
+  Set section = browser.pageNewBusinessCaptureMomentumFi2.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section
+  Set panel = section.formFormHorizontalNgUntouchedNg.panelFormGroup
+  Call panel.panelCheckboxColSm3.checkboxCreateNewProcess.ClickButton(cbChecked)
+  Set textbox = panel.textboxProcessId
+  Call textbox.Click(17, 26)
+  Call textbox.SetText("64545645646")
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+  Call browser2.Drag(1360, 282, 5, 203)
+  Set panel = section.panelContainer.panelPanelBody
+  Set button = panel.buttonCreateAndLoadProcess
+  button.ClickButton
+  button.ClickButton
+  panel.panelBodyPaddingRow.panelColSm12.panelCardContent.sectionPanelFooter.buttonView.ClickButton
+  Set section = panel.panelColSm12.section
+  Set form = section.formFormHorizontalNgUntouchedNg
+  Call form.selectTitle.ClickItem("Mr")
+  Set textbox = form.textboxInitials
+  Call textbox.Click(43, 22)
+  Call textbox.SetText("H")
+  Call textbox.Keys("[Tab]")
+  Set textbox = form.panelFormGroup.textboxFullNames
+  Call textbox.SetText("H")
+  Call textbox.Keys("[Tab]")
+  Call form.panelFormGroup2.textboxPreferredName.Keys("[Tab]")
+  Call form.panelFormGroup3.textboxSurname.SetText("Surname")
+  Call form.Click(420, 349)
+  Set textbox = form.textboxIdNumber
+  Call textbox.Click(161, 17)
+  Call textbox.SetText("8507275841084")
+  Call browser2.Drag(1357, 388, 8, 132)
+  form.buttonNonSouthAfrican.ClickButton
+  form.labelRadioInline.ClickButton
+  form.buttonFemale.ClickButton
+  Set form2 = form.formFormHorizontalNgUntouchedNg
+  form2.buttonNo.ClickButton
+  Call form2.panelControlLabelColSm3.HoverMouse(16, 27)
+  form.buttonUpdate.ClickButton
+  Call browser2.Drag(1356, 453, -5, 91)
+  Set panel = section.panelFormHorizontal
+  Set panel2 = panel.panelPanelPanelDefault
+  Call panel2.panelPanelHeading.panelContactDetails.Click(873, 28)
+  Set form = panel2.formFormHorizontalNgUntouchedNg
+  Set panel3 = form.panelFormGroup3
+  panel3.buttonEnglish.ClickButton
+  panel3.buttonAfrikaans.ClickButton
+  form.buttonPost.ClickButton
+  Call browser2.Drag(1358, 253, 7, 96)
+  Set textbox = form.textboxTelephoneW
+  Call textbox.Click(257, 20)
+  Call textbox.SetText("0128756985")
+  Set textbox = form.panelFormGroup.textboxHometelephone
+  Call textbox.Click(36, 27)
+  Call textbox.SetText("0112459874")
+  Set textbox = form.textboxCellphone
+  Call textbox.Click(149, 36)
+  Call textbox.SetText("0732541236")
+  Set textbox = form.panelFormGroup2.textboxFax
+  Call textbox.Click(48, 22)
+  Call textbox.SetText("012698745")
+  Set emailInput = form.emailinputEmail
+  Call emailInput.Click(25, 21)
+  Call emailInput.SetText("jhghgj@abc.co.za")
+  Call browser2.Drag(1355, 342, -4, 112)
+  Call form.formFormNgUntouchedNgPristineN2.checkboxSameAsPhysicalAddress.ClickButton(cbChecked)
+  Set form2 = form.formFormNgUntouchedNgPristineN
+  Set textbox = form2.textboxLine1
+  Call textbox.Click(196, 23)
+  Call textbox.SetText("1234")
+  Set textbox = form2.textboxLine2
+  Call textbox.Click(93, 13)
+  Call textbox.SetText("13564564")
+  Set textbox = form2.textboxLine3
+  Call textbox.Click(15, 24)
+  Call textbox.DblClick(15, 24)
+  Call textbox.Click(15, 24)
+  Call textbox.SetText("231123")
+  Set textbox = form2.textboxCity
+  Call textbox.Click(32, 23)
+  Call textbox.SetText("Joburg")
+  Set textbox = form2.textboxPostalCode
+  Call textbox.Click(46, 12)
+  Call textbox.SetText("0002")
+  Set textbox = form2.textboxProvince
+  Call textbox.Click(67, 6)
+  Call textbox.SetText("Gauteng")
+  Call browser2.DblClick(1363, 634)
+  Call browser2.Click(1363, 634)
+  Set vselect = form2.selectCountry
+  Call vselect.ClickItem("Select..")
+  Call vselect.ClickItem("Select..")
+  Call vselect.ClickItem("Select..")
+  Call vselect.ClickItem("Select..")
+  panel2.buttonUpdate.ClickButton
+  Call browser2.DblClick(1353, 631)
+  Call browser2.Click(1353, 631)
+  Set panel2 = panel.panelPanelPanelDefault2
+  Call panel2.panelPanelHeading.panelBankingDetails.Click(588, 26)
+  Set form = panel2.formFormHorizontalNgUntouchedNg
+  Call form.selectAccountHolderRelationship.ClickItem("Joint account")
+  Call form.selectBankName.ClickItem("Firstrand Bank")
+  Call browser2.Drag(1354, 376, 11, 121)
+  Call form.selectBranchName.ClickItem("South Africa")
+  Call form.selectAccountType.ClickItem("Savings account")
+  Set textbox = form.textboxAccountNumber
+  Call textbox.Click(57, 24)
+  Call textbox.SetText("6207660976")
+  form.buttonUpdate.ClickButton
+  Call browser2.Drag(1354, 397, 11, 134)
+  Set panel2 = panel.panelPanelPanelDefault3
+  Call panel2.panelPanelHeading.panelTaxDetails.Click(759, 18)
+  Set form = panel2.panelPanelCollapseCollapse.panelPanelBody.panelPanelBodyForm.formFormHorizontalNgUntouchedNg
+  form.buttonYes.ClickButton
+  Call browser2.Drag(1361, 267, 4, 138)
+  Set textbox = form.textboxSarsTaxReference
+  Call textbox.Click(228, 20)
+  Call textbox.SetText("1654328765")
+  Call browser2.Drag(1355, 249, 10, 148)
+  Set button = form.buttonNo
+  button.ClickButton
+  Set button2 = form.buttonNo2
+  button2.ClickButton
+  form.buttonYes2.ClickButton
+  button.ClickButton
+  form.buttonYes3.ClickButton
+  button2.ClickButton
+  Set button = form.buttonUpdate
+  button.ClickButton
+  Call button.HoverMouse(44, 6)
+  Call browser2.Drag(1359, 426, 6, 113)
+  section.buttonProductDetails.ClickButton
+End Sub
+
+Sub Test2
+  Dim browser
+  Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcHZ3cDBzNTb1DA809jAw8jIAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwqvEgNjDAWYTgQrwOOGgtzQCINMT0UAY1As6Q!!/#/investment-proposal/processSearch")
+  Set browser = Aliases.browser
+  Call browser.pageNewBusinessCaptureMomentumFi2.headerTop.ClickItem("Logout")
+  browser.pageWelcomeMomentumFinancialAdvi.Wait
+End Sub
+
+Sub Test3
+  Dim browser
+  Dim page
+  Dim panel
+  Dim section
+  Dim form
+  Dim textbox
+  Dim textbox2
+  Dim browser2
+  Dim panel2
+  Dim button
+  Dim panel3
+  Dim panel4
+  Dim panel5
+  Dim panel6
+  Dim panel7
+  Dim form2
+  Dim vselect
+  Dim phoneInput
+  Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcHZ3cDBzNTb1DA809jAw8jIAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwqvEgNjDAWYTgQrwOOGgtzQCINMT0UAY1As6Q!!/#/investment-proposal/processSearch")
+  Set browser = Aliases.browser
+  Set page = browser.pageNewBusinessCaptureMomentumFi2
+  Set panel = page.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel
+  Set section = panel.panelContainer.section
+  Set form = section.formFormHorizontalNgUntouchedNg
+  Set textbox = form.panelFormGroup
+  Set textbox2 = textbox.textboxProcessId
+  Call textbox2.Click(120, 23)
+  Call textbox2.Click(120, 23)
+  Call textbox2.SetText("6454654654654")
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+  Call browser2.Drag(1355, 398, -13, 195)
+  Set panel2 = textbox.panelCheckboxColSm3
+  Call panel2.panelColSm9.textboxFeeReference.Click(158, 17)
+  Call panel2.checkboxCreateNewProcess.ClickButton(cbChecked)
+  Call browser2.Drag(1363, 350, 2, 219)
+  Set panel2 = section.panelContainer.panelPanelBody
+  Set button = panel2.buttonCreateAndLoadProcess
+  button.ClickButton
+  button.ClickButton
+  panel2.panelBodyPaddingRow.panelColSm12.panelCardContent.sectionPanelFooter.buttonView.ClickButton
+  Set section = panel2.panelColSm12.section
+  Call section.formFormHorizontalNgUntouchedNg.selectTitle.ClickItem("Mrs")
+  Call browser2.Drag(1361, 211, 4, 239)
+  Set panel2 = section.panelFormHorizontal
+  Set panel3 = panel2.panelPanelPanelDefault
+  Set panel4 = panel3.panelPanelHeading.panelContactDetails
+  Call panel4.Click(791, 21)
+  Call browser2.Drag(1360, 373, -7, 96)
+  Set panel5 = panel2.panelPanelPanelDefault2
+  Set panel6 = panel5.panelPanelHeading.panelBankingDetails
+  Call panel6.Click(614, 12)
+  Set panel7 = panel2.panelPanelPanelDefault3
+  Set panel2 = panel7.panelPanelHeading
+  Call panel2.panelTaxDetails.Click(593, 5)
+  section.buttonProductDetails.ClickButton
+  Call browser2.Click(1258, 175)
+  form.buttonYes.ClickButton
+  Call browser2.Drag(1355, 475, -4, 40)
+  Call panel4.Click(629, 18)
+  Set panel4 = form.panel.formFormHorizontalNgUntouchedNg.panel
+  Call panel4.panelFormGroup2.selectSourceOfIncome.ClickItem("Self-employed")
+  Call browser2.Drag(1359, 208, 6, 159)
+  Set textbox2 = panel4.panelFormGroup.panelColSm9.textboxNameOfBusiness
+  Call textbox2.Click(193, 22)
+  Call textbox2.SetText("1234")
+  Set form2 = panel5.formFormHorizontalNgUntouchedNg
+  Set vselect = form2.selectSourceOfFunds
+  Call vselect.ClickR(97, 4)
+  Call vselect.ClickItem("Salary/Remuneration")
+  Set panel4 = form2.panel
+  Call panel4.panelFormGroup2.HoverMouse(348, 38)
+  Set textbox2 = panel4.panelFormGroup.panelColSm9.textboxNameOfEmployer
+  Call textbox2.Click(49, 20)
+  Call textbox2.SetText("1234")
+  Call browser2.Drag(1360, 430, 5, 138)
+  form.buttonYes2.ClickButton
+  form.buttonNo.ClickButton
+  panel3.buttonUpdate.ClickButton
+  Call page.HoverMouse(1346, 336)
+  Call panel.HoverMouse(1347, 630)
+  Call browser2.Drag(1362, 410, -5, 81)
+  Call panel6.Click(966, 27)
+  Set panel = form2.formFormHorizontalNgUntouchedNg.panelFormGroup
+  Call panel.panelFormGroup.panelColSm6.panelColSm8.textboxFspHouseCode.Click(240, 27)
+  Call panel.panelFormGroup2.panelColSm6.panelColSm8.textboxFinancialAdviserCode.Click(176, 22)
+  Call browser2.Drag(1359, 208, 6, 223)
+  Set textbox2 = textbox.panelColSm10.textboxFullNames
+  Call textbox2.Click(258, 20)
+  Call textbox2.SetText("1232323")
+  Set textbox = form2.panelFormGroup.panelColSm10.textboxSurname
+  Call textbox.Click(136, 8)
+  Call textbox.SetText("1312313123")
+  Set phoneInput = panel2.phoneinputContacttelephoneinput
+  Call phoneInput.Click(58, 17)
+  Call phoneInput.SetText("0125846985")
+  Set phoneInput = panel7.panelPanelCollapseCollapse.phoneinputContactcellphoneinput
+  Call phoneInput.Click(39, 30)
+  Call phoneInput.SetText("0732098480")
+  Set textbox = form2.panelFormGroup2.panelColSm10.textboxEmail
+  Call textbox.Click(321, 30)
+  Call textbox.SetText("hjh@gjhgjhg.com")
+  Call browser2.Drag(1354, 427, 11, 132)
+  form2.buttonYes.ClickButton
+  form2.buttonUpdate.ClickButton
+  Call page.HoverMouse(1355, 440)
+  Call browser2.Drag(1355, 439, 7, 141)
+  button.ClickButton
+  Call page.HoverMouse(1353, 245)
+  Call browser2.Drag(1361, 356, 4, 192)
+  button.ClickButton
+  Call browser2.Drag(1355, 306, 10, 177)
+End Sub
+
+Sub Test4
+  Dim browser
+  Dim section
+  Dim panel
+  Dim textbox
+  Dim button
+  Call Browsers.Item(btIExplorer).Navigate("http://eprtint201.momentum.co.za:13139/wps/myportal/fa/Home/clients/nbc/!ut/p/a1/04_Sj9CPykssy0xPLMnMz0vMAfGjzOKd3R09TMx9DAzcHZ3cDBzNTb1DA809jAw8jIAKIlEUBJo4GXia-_p7uwZZGBt4mhGn3wAHcDQgpD9cPwqvEgNjDAWYTgQrwOOGgtzQCINMT0UAY1As6Q!!/#/investment-proposal/processSearch")
+  Set browser = Aliases.browser
+  Set section = browser.pageNewBusinessCaptureMomentumFi2.sectionTopMargin80Desktop.panelContainerFluidNoPaddingLr.panelRow.panelComponentControlIdZ7Cgah47l.sectionWpthemenoskin.panel.panel.panelContainer.section
+  Set panel = section.formFormHorizontalNgUntouchedNg.panelFormGroup
+  Call panel.panelCheckboxColSm3.checkboxCreateNewProcess.ClickButton(cbChecked)
+  Set textbox = panel.textboxProcessId
+  Call textbox.Click(81, 17)
+  Call textbox.SetText("126545465")
+  Call browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser.Drag(1356, 322, 7, 165)
+  Set button = section.panelContainer.panelPanelBody.buttonCreateAndLoadProcess
+  Call button.DblClick(74, 13)
+  button.ClickButton
+End Sub
+
+Sub Test5
+  Dim panel
+  Call Browsers.Item(btIExplorer).Navigate("https://internal-retail-pre.momentum.co.za/nbc/#/investment-proposal/processSearch")
+  Set panel = Aliases.browser.pageNewBusinessCapture.section.formFormHorizontalNgUntouchedNg.panelFormGroup
+  panel.panelCheckboxColSm3.checkboxCreateNewProcess.Click
+  Call panel.textboxProcessId.Click(97, 23)
+End Sub

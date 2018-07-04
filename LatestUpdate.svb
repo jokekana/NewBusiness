@@ -1,0 +1,590 @@
+﻿Sub download
+ 'https://theitqc.blogspot.co.za/2015/06/download-open-and-save-pdf-file-in.html 
+ Set objShellpdfSave = CreateObject("WScript.Shell")
+ objShellpdfSave.SendKeys("+^S")
+ Delay(5000)
+ objShellpdfSave.SendKeys ("Path and File Name")
+ Aqutils.Delay(1000)       
+ objShellpdfSave.Sendkeys(ENTER)
+
+End Sub 
+
+
+Sub TestApp1
+Sys.Process("AcroRd32", 6).Window("AcrobatSDIWindow", "WEALTH240-za-en (2).pdf - Adobe Acrobat Reader DC", 1).Close
+
+
+Dim Xl
+Dim Wb
+Dim Ws
+Dim Ol
+
+Set Xl = CreateObject("Excel.Application")
+Set Wb = Xl.Workbooks.Add
+Set Ws = Wb.Worksheets.Add
+Xl.Visible = True
+
+Set Ol = ws.OLEObjects.Add(, "C:\Test\TC_FIO-SCENARIO_1_1_1_MFP\2017-11-03_05_45_20_PM\Fail\LoginMDSOnline2017-11-03_05_46_09_PM.png", True, False)
+
+    With Ol
+        .Left = Ws.Range("A1").Left
+        .Height = Ws.Range("A1").Height
+        .Width = Ws.Range("A1").Width
+        .Top = Ws.Range("A1").Top
+    End With
+
+Xl.Visible = True
+End Sub 
+
+
+Sub TestApp
+Dim Xl
+Dim Wb
+Dim Ws
+Dim Ol
+
+Set Xl = CreateObject("Excel.Application")
+Set Wb = Xl.Workbooks.Add
+Set Ws = Wb.Worksheets.Add
+Xl.Visible = True
+Xl.WorkSheets("Sheet1").Activate
+
+Xl.Cells(1,9).Value = "Fail"
+
+Set Ol = ws.OLEObjects.Add(, "C:\Test\TC_FIO-SCENARIO_1_1_1_MFP\2017-11-03_05_45_20_PM\Fail\LoginMDSOnline2017-11-03_05_46_09_PM.png", True, False)
+
+
+    With Ol
+        .Left = Ws.Range("A1").Left
+        .Height = Ws.Range("A1").Height
+        .Width = Ws.Range("A1").Width
+        .Top = Ws.Range("A1").Top
+    End With
+
+Xl.Visible = True
+End Sub 
+  
+  Sub Exceltest
+ Set Excel = CreateObject("Excel.Application")
+' Excel.Workbooks.Open("C:\Testing\TestSuite\Sprint1_2.xlsx")
+ ' Excel.Workbooks.Open("C:\Testing\TestSuite\TestJoe.xlsx")
+  Excel.Visible = True
+'     Set objWorkBook = Excel.Workbooks.Add()
+ '    For I = 1 to 5
+  '   Excel.Cells(1,9).Value = "Testing"
+  '   Excel.Cells(I,9).Value = "Fail"
+     
+     
+   '  Next 
+ '    Excel.DisplayAlerts = False
+  '   objWorkBook.SaveAs("C:\Testing\TestSuite\TestJoe4.xlsx")
+
+'     Excel.ActiveWorkBook.Save
+ '    objWorkBook.Close
+   Excel.Workbooks.Open("C:\Testing\TestSuite\TestJoe.xlsx")
+   Excel.WorkSheets("Sheet1").Activate
+  ' objWorkBook.SaveAs("C:\Testing\TestSuite\TestJoe1.xlsx")
+  'objWorkBook.SaveAs("C:\Testing\TestSuite\TestJoe.xlsx")
+  'Excel.Cells(i,13).Value = "Pass"
+  'Set objWorkBook = Excel.Workbooks.Add()
+  For I = 1 to 5
+  Excel.Cells(1,11).Value = "Testing - ReviewSubmit"
+  Excel.Cells(I,11).Value = "Pass"
+   Excel.Cells(I,12).Select
+  Next
+  'Excel.ActiveWorkBook.Save
+'  objWorkBook.Close
+  
+   Excel.Workbooks.Open("C:\Testing\TestSuite\TestJoe4.xlsx")
+   Excel.Visible = True
+   Excel.WorkSheets("Sheet1").Activate
+   
+   For I = 2 to 5
+   Excel.Cells(1,11).Value = "Testing - Sheet1"
+   Excel.Cells(I,11).Value = "Pass"
+   Excel.Cells(I,12).Select
+   Next
+   
+  'Excel.ActiveWorkBook.Save
+  'objWorkBook.Close
+  'objWorkBook.SaveAs("C:\Testing\TestSuite\TestJoe1.xlsx")
+  'Excel.ActiveWorkBook.Save(("C:\Testing\TestSuite\TestJoe1.xlsx"))
+  Excel.Quit
+  End Sub
+
+
+Sub FileExistsExample
+  Dim sPath
+  sPath = "C:\TestExecution\MyFile.txt"
+  
+  If Not aqFileSystem.Exists(sPath) Then 
+    Call aqFile.Create(sPath)
+  End If 
+  Call aqFile.WriteToTextFile(sPath, "Hello, world!" & vbCrlf , aqFile.ctANSI, False)
+End Sub
+
+
+
+Sub StringByLetter
+  Dim aString, i
+  
+  ' Specifies the string
+  aString = "Per aspera ad astra"
+  Log.Message("The string is : " & aString)
+  Log.Message("And now, this text letter by letter using the GetChar method:")
+  
+  ' Posts the specified string letter by letter to the test log
+  For i = 0 To aqString.GetLength(aString)-1
+    MsgBox aqString.GetLength(aString)
+    msgbox aqString.GetLength(aString) 
+    Log.Message(aqString.GetChar(aString, i))
+    MsgBox (aqString.GetChar(aString, i))
+  Next
+  
+End Sub
+
+
+
+Function Close_Excel_Instances(Byval appli)
+  Dim p, isClosed
+  ' Obtains the notepad.exe process
+  Set p = Sys.FindChild("ProcessName", appli)
+
+  ' Iterates through all the instances of the notepad.exe process
+  ' until all of them are closed
+  While p.Exists
+    p.Close
+    ' Waits until the process is closed
+    isClosed = p.WaitProperty("Exists", False)
+    ' Checks whether the process has been closed successfully
+    If Not isClosed Then
+      ' Terminates the process
+      p.Terminate
+    End If
+
+    ' Obtains another instance of the notepad.exe process
+    Set p = Sys.FindChild("ProcessName", appli)
+  Wend
+
+End Function
+
+Sub Process
+  Dim browser
+  Dim section
+  Dim panel
+  Dim textbox
+  Dim button
+  'Call Browsers.Item(btIExplorer).Navigate("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/processSearch")
+   Call Browsers.Item(btChrome).Run("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/processSearch")
+   Call Browsers.Item(btChrome).Navigate("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/processSearch")
+  Set browser = Aliases.browser
+  Set section = browser.pageNewBusinessCapture2.section
+  Set panel = section.formFormHorizontalNgUntouchedNg.panelFormGroup
+  Call panel.panelCheckboxColSm3.checkboxCreateNewProcess.Click(10, 13)
+  Set textbox = panel.panelColSm9.textboxProcessId
+  Call textbox.Click(37, 12)
+  Call textbox.SetText("1438490706")
+  Call browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser.Click(1138, 268)
+ ' Call Browsers.Item(btChrome).Navigate("https://www.google.co.za/")
+'  Call browser.pageWwwGoogleCoZa.panelAls.Click(1183, 17)
+  Set button = section.buttonCreateAndLoadProcess
+  Call button.Click(134, 20)
+  if textbox.Exists Then
+   Call button.Click(134, 20)
+  ' ElseIf button.Exists Then
+   'Do nothing
+  End If 
+End Sub
+
+Sub ClientDetails
+  Dim browser
+  Dim section
+  Dim button
+  Dim form
+  Dim panel
+  Dim textbox
+  Dim panel2
+  Dim textbox2
+  Dim panel3
+  Dim panel4
+  Dim browser2
+  Dim panel5
+  Dim button2
+  Dim form2
+  Dim panel6
+  Dim emailInput
+  Dim vselect
+'  Call Browsers.Item(btIExplorer).Navigate("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal")
+  Set browser = Aliases.browser
+  Set section = browser.pageNewBusinessCapture2.section
+  Set button = section.buttonCreateAndLoadProcess
+ ' Set obj = Aliases.browser.pageNewBusinessCapture2.section.buttonCreateAndLoadProcess.textnodeView
+ Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal").Section(0).Panel(1).Panel(0).Panel(0).Panel(0).Panel(0).Panel(1).Section(1).Panel(0).Button(0).Click
+  'Sys.Browser("iexplore").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal").Section(0).Panel(1).Panel(0).Panel(0).Panel(0).Panel(0).Panel(1).Section(1).Panel(0).Button(0).Click
+'  Set tst1 = obj.Find("sourceIndex","103", 2)
+'  tst1.Click
+  'Call button.textnodeView.Click
+  
+  Set form = section.formFormHorizontalNgUntouchedNg
+  Set panel = form.panelFormGroup2
+  Call panel.selectTitle.ClickItem("Mr")
+  Set textbox = panel.panelColSm3.textboxInitials
+  Call textbox.Click(34, 26)
+  Call textbox.SetText("J")
+  Call textbox.Keys("[Tab]")
+  Set panel = form.panelFormGroup
+  Set panel2 = panel.panelColSm9
+  Set textbox2 = panel2.textboxFullNames
+  Call textbox2.SetText("Jose")
+  Call textbox2.Keys("[Tab]")
+  Set panel3 = form.panelFormGroup3
+  Set textbox2 = panel3.panelColSm9.textboxPreferredName
+  Call textbox2.SetText("Joe")
+  Call textbox2.Keys("[Tab]")
+  Call textbox.Click(28, 8)
+  Call textbox.SetText("J")
+  Set panel4 = form.panelFormGroup4
+  Set textbox = panel4.panelColSm9.textboxSurname
+  Call textbox.Click(99, 34)
+  Call textbox.SetText("Testing")
+  Call form.buttonRsaIdNumber.Click(11, 11)
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+  Call browser2.Drag(1355, 344, 3, 108)
+  Set panel5 = form.panel.panelFormGroup
+  Set textbox = panel5.panelColSm9.textboxIdNumber
+  Call textbox.Click(220, 16)
+  Call textbox.Keys("[Up]")
+  Call textbox.SetText("")
+  'Call textbox.Keys("[Home]")
+  Call textbox.SetText("8507275841084")
+  Set button2 = form.buttonSouthAfrican
+  Call button2.Click(9, 10)
+  Call form.buttonNonSouthAfrican.Click(18, 10)
+  Call button2.Click(8, 3)
+  Call form.radiobuttonFemale.Click(18, 5)
+  Call form.buttonMale.Click(16, 8)
+  Call browser2.Drag(1356, 443, 9, 83)
+  Set form2 = form.formFormHorizontalNgUntouchedNg
+  Call form2.buttonNo.Click(12, 9)
+  Call form2.buttonYes.Click(6, 11)
+  Set panel6 = form2.panelFormGroup.panelFormDynamicSectionNoMargin.panelFormGroup
+  Call panel6.panelCheckboxColSm6.checkboxHeadOfState.Click(11, 4)
+  Call panel6.panelCheckboxColSm62.checkboxCabinetMinister.Click(8, 3)
+  Call browser2.Drag(1359, 282, 6, 89)
+  'Call button.Click(53, 17)
+  set UpdateBtn = Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(0).Panel(1).Panel(0).Panel(0).Form(0).Panel(9).Panel(0).Button(0)
+      UpdateBtn.Click
+      
+  Call browser2.Drag(1360, 374, 5, 176)
+  Set panel6 = section.panelContainer.panelColSm12.section.panelFormHorizontal
+  Call panel6.panelPanelPanelDefault.panelPanelHeading.panelContactDetails.Click(835, 29)
+  Set button2 = form.buttonEnglish
+  Call button2.Click(15, 15)
+  Call form.buttonAfrikaans.Click(6, 21)
+  Call button2.Click(11, 17)
+  Call panel.buttonPost.Click(13, 22)
+  Call panel2.buttonEmail.Click(15, 13)
+  Call browser2.Drag(1358, 233, 7, 101)
+  Set textbox = panel3.panelColSm4.textboxTelephoneW
+'  Call textbox.Click(226, 31)
+  Call textbox.SetText("0124786985")
+  Set textbox = panel3.panelColSm42.textboxHometelephone
+ ' Call textbox.Click(22, 25)
+  Call textbox.SetText("0115478985")
+  Call form.Click(308, 243)
+  Set textbox = panel4.panelColSm4.textboxCellphone
+  'Call textbox.Click(125, 22)
+  Call textbox.SetText("0732098048")
+  Set textbox = panel4.panelColSm42.textboxFax
+  'Call textbox.Click(42, 22)
+  Call textbox.SetText("0861236547")
+  Set panel = form.panelFormGroup5.panelColSm4
+  Set emailInput = panel.emailinputEmail
+  'Call emailInput.Click(240, 16)
+  Call emailInput.SetText("jo@jo.co.za")
+  Call browser2.Drag(1357, 335, 8, 145)
+  Call form.formFormNgUntouchedNgPristineN.checkboxSameAsPhysicalAddress.Click(12, 11)
+  Set form2 = form.formFormNgUntouchedNgPristineN2
+  Set textbox = form2.panelFormGroup.panelColSm8.textboxLine1
+  'Call textbox.Click(220, 15)
+  Call textbox.SetText("123")
+  Set textbox = form2.panelFormGroup2.panelColSm8.textboxLine2
+  'Call textbox.Click(132, 5)
+  Call textbox.SetText("0987")
+  Set textbox = form2.panelFormGroup3.panelColSm8.textboxLine3
+  'Call textbox.Click(82, 31)
+  Call textbox.SetText("7654")
+  Set textbox = form2.panelFormGroup4.panelColSm8.textboxCity
+  'Call textbox.Click(44, 20)
+  Call textbox.SetText("Johannesburg")
+  Set textbox = form2.panelFormGroup5.panelColSm8.textboxPostalCode
+  'Call textbox.Click(26, 25)
+  Call textbox.SetText("0002")
+  Set textbox = form2.panelFormGroup6.panelColSm8.textboxProvince
+  'Call textbox.Click(5, 36)
+  Call textbox.SetText("Gauteng")
+  Call browser2.Drag(1361, 430, 3, 67)
+  Set vselect = form2.selectCountry
+  Call vselect.ClickItem("Select..")
+  Call vselect.ClickItem("Select..")
+  'Have to get the Full Name
+  Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(0).Panel(1).Panel(0).Panel(0).Form(0).Panel(9).Panel(0).Button(0).Click
+  'Call button.Click(28, 21)
+  Call browser2.Drag(1356, 417, 6, 90)
+  Call panel6.panelPanelPanelDefault2.panelPanelHeading.panelBankingDetails.Click(561, 27)
+  Call browser2.Drag(1359, 292, 6, 112)
+  Set vselect = form.selectAccountHolderRelationship
+  Call vselect.ClickItem("Own account")
+  Set vselect = panel2.selectBankName
+  Call vselect.ClickItem("Bidvest Bank")
+  Set vselect = form.selectBranchName
+  'Call vselect.ClickItem("Select...")
+  Call vselect.ClickItem("Bidvest Bank")
+  Call form.selectAccountType.ClickItem("Credit card")
+  Set textbox = panel.textboxBranchNumber
+  
+  Set textbox = panel5.textboxAccountNumber
+  'Call textbox.Click(156, 7)
+  Call textbox.SetText("92658745")
+  Call browser2.Drag(1356, 500, 6, 96)
+  'Have to get the Button Fullname
+  Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(2).Panel(1).Panel(0).Panel(0).Form(0).Button(0).Click
+  'Call button.Click(29, 18)
+  Call browser2.Drag(1360, 380, 5, 114)
+  Call panel6.panelPanelPanelDefault3.panelPanelHeading.panelTaxDetails.Click(1052, 13)
+  Call browser2.Drag(1357, 395, 8, 119)
+  Call form.buttonNo.Click(9, 8)
+  Set button2 = form.buttonYes
+  Call button2.Click(15, 10)
+  Call button2.HoverMouse(15, 11)
+  Set textbox = panel2.textboxSarsTaxReference
+  'Call textbox.Click(29, 11)
+  Call textbox.SetText("193654789562")
+  Call browser2.Drag(1361, 379, 3, 145)
+  Call form.buttonNo2.Click(10, 6)
+  Call panel4.buttonNo.Click(13, 13)
+  'Click the Object Using the FullName 
+  Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(3).Panel(1).Panel(0).Panel(0).Form(0).Button(0).Click
+ ' Call button.Click(57, 10)
+  Call browser2.Drag(1357, 486, 2, 32)
+  'Have to click the Product Details Update Button
+  '
+  Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(1).Button(0).Click  
+  'Call button.Click(49, 13)
+  Set btn = Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(0).TextNode(0)
+  
+  If btn.Exists Then
+  Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/clientDetails").Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(2).Button(1).Click  
+  End IF
+  
+End Sub
+
+Sub Test3
+  Dim browser
+  Dim page
+  Dim section
+  Dim form
+  Dim panel
+  Dim browser2
+  Dim form2
+  Dim panel2
+  Dim textbox
+  Dim panel3
+  Dim panel4
+  Dim button
+  Dim textbox2
+  Dim textbox3
+  Dim phoneInput
+  Dim button2
+'  Call Browsers.Item(btIExplorer).Navigate("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/productDetails")
+  Set browser = Aliases.browser
+  Set page = browser.pageNewBusinessCapture2
+  Set section = page.section
+  Set form = section.formFormHorizontalNgUntouchedNg
+  Call form.panelFormGroup2.buttonYes.Click(12, 14)
+  Set panel = section.panelContainer.panelColSm12.section.panelFormHorizontal
+  Call panel.panelPanelPanelDefault.panelPanelHeading.panelContactDetails.Click(626, 14)
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+  Call browser2.Drag(1359, 301, 6, 96)
+  Set form2 = form.formFormHorizontalNgUntouchedNg
+  Call form2.selectSourceOfIncome.ClickItem("Employed")
+  Set panel2 = form2.panelFormGroup.panelFormDynamicSectionNoMargin
+  Set textbox = panel2.textboxNameOfEmployer
+'  Call textbox.Click(333, 17)
+  Call textbox.SetText("Tetsts")
+  Call browser2.Drag(1355, 320, 10, 94)
+  Set panel3 = form.panelFormGroup3.panelColSm9
+  Call panel3.selectSourceOfFunds.ClickItem("Salary/Remuneration")
+  Call panel3.selectSourceOfFunds.Keys("[Tab]")
+ ' Call textbox.Click(128, 8)
+  Call textbox.SetText("Testing787")
+  Call browser2.Drag(1354, 393, 11, 111)
+  Set panel4 = form.panelFormGroup5.panelColSm4
+  Set button = panel4.buttonYes
+  Call button.Click(9, 21)
+  Call panel4.buttonNo.Click(8, 20)
+  Call button.Click(12, 13)
+  Set button = section.buttonCreateAndLoadProcess
+  'Have to get the FullName for Update Button
+  Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(1).Panel(1).Panel(0).Panel(0).Form(0).Button(0).Click
+  
+  'Call button.Click(38, 10)
+  Call browser2.Drag(1359, 419, 1, 88)
+  panel.panelPanelPanelDefault2.panelPanelHeading.panelBankingDetails.Click
+  Set textbox = form2.panelFormGroup2.panelFormGroup.panelColSm6.panelColSm8.textboxFspHouseCode
+  'Call textbox.Click(92, 17)
+  'Call textbox.DblClick(92, 17)
+  'Call textbox.Click(92, 17)
+  'Call button.Click(25, 14)
+  '                      Sys.Browser("iexplore").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(2).Panel(1).Panel(0).Panel(0).Form(0).Panel(0).Panel(0).Panel(0).Button(0)  
+  set AddAnotherFinBtn = Sys.Browser("iexplore").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(2).Panel(1).Panel(0).Panel(0).Form(0).Panel(0).Panel(0).Panel(0).Button(0)
+  
+ ' AddAnotherFinBtn.Click
+  
+ ' Call textbox.Click(16, 22)
+  Call textbox.SetText ("039999")
+  Set textbox2 = panel2.panelFormGroup.textboxFinancialAdviserCode
+  'Call textbox2.Click(19, 18)
+  Call textbox2.SetText ("065555")
+  Set textbox3 = form.formFormNgUntouchedNgPristineN2.panelFormGroup2.panelColSm8.panelColSm8.textboxMarketingAdviserCode
+  'Call textbox3.Click(25, 18)
+  'Call textbox.DblClick(76, 13)
+ ' Call textbox.Click(76, 13)
+ ' Call textbox.DblClick(77, 17)
+  'Call textbox.Click(77, 17)
+  Call textbox2.DblClick(71, 19)
+  'Call textbox2.Click(71, 19)
+  'Call textbox3.DblClick(97, 25)
+  'Call textbox3.Click(142, 25)
+  Call browser2.Drag(1354, 284, 11, 122)
+  Set textbox = form.panelFormGroup.panelColSm9.textboxFullNames2
+  'Call textbox.Click(164, 23)
+  Call textbox.SetText("Joe")
+  Call textbox.Keys("[Tab]")
+  Call panel3.textboxSurname.SetText("Testing123")
+  Set phoneInput = panel.panelPanelPanelDefault3.panelPanelHeading.phoneinputContacttelephoneinput
+  'Call phoneInput.Click(135, 10)
+  Call phoneInput.SetText("0132548969")
+  Set phoneInput = form.panelFormGroup4.panelColSm9.phoneinputContactcellphoneinput
+  'Call phoneInput.Click(67, 24)
+  Call phoneInput.SetText("0834697123")
+  Set textbox = panel4.textboxEmail
+  'Call textbox.Click(220, 18)
+  Call textbox.SetText("jose@webtesting.co.za")
+  Call browser2.Drag(1364, 414, 1, 112)
+  'Call textbox.Click(596, 17)
+  Set button2 = form.panel.panelFormGroup.buttonYes
+  Call button2.Click(12, 17)
+  Call button2.Click(6, 16)
+  Call browser2.Drag(1360, 535, 5, 93)
+  'Click the FullNAme
+  Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(0).Panel(2).Panel(1).Panel(0).Panel(0).Form(0).Button(0).Click
+  'Call button.Click(50, 21)
+  Call page.HoverMouse(1348, 463)
+  Call section.HoverMouse(1340, 695)
+  Call browser2.Drag(1357, 517, 8, 112)
+  'HAve to get the FullName of the Button - Documents Button
+  Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel(1).Section(0).Panel(1).Button(0).Click
+  'Call button.Click(44, 16)
+  'Click the Pop up Button - Check if it exists first
+ set test = Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(0).TextNode(0)
+ if test.Exists Then
+ Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/productDetails").Section(0).Panel(1).Panel(0).Panel(2).Panel(0).Panel(2).Button(1).Click
+ End IF
+  
+End Sub
+
+Sub Test4
+  Dim browser
+  Dim browser2
+  Dim section
+  Dim form
+  Dim panel
+  Dim textbox
+  Dim panel2
+  Dim table
+  Dim textNode
+  Dim legend
+  'Call Browsers.Item(btChrome, "", Browsers.pX64).Navigate("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/uploadAndShare")
+  'Call Browsers.Item(btChrome).Navigate("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/uploadAndShare")
+  Set browser = Aliases.browser
+  Set browser2 = browser.BrowserWindow.FrameTab.tabpage.ShellDocObjectView.browser
+  Call browser2.Drag(1360, 274, -27, 215)
+  Set section = browser.pageNewBusinessCapture2.section
+  Set form = section.formFormHorizontalNgUntouchedNg
+  Set panel = form.panelFormGroup2
+  Set textbox = panel.panelColSm9.textboxClientcontactemail
+ ' Call textbox.DblClick(160, 19)
+  'Call textbox.Click(160, 19)
+  Call browser2.Drag(1360, 489, 4, 55)
+  Set panel2 = section.panelContainer.panelColSm12
+  Call panel2.panelPanelHeading.panelUpload.Click(546, 23)
+  Set table = panel.tableTableTableStripedTableNoBo
+  table.cellTextRight.link.Click
+  Set textNode = table.textnodeUpload
+  Call textNode.Click(76, 7)
+  Call browser2.Click(739, 119)
+  Call browser2.Click(1194, 245)
+  table.cellTextRight2.link.Click
+  Call textNode.Click(45, 12)
+  Call browser2.Click(693, 119)
+  Call browser2.Click(1189, 247)
+  table.cellTextRight3.link.Click
+  Call textNode.Click(85, 12)
+  Call browser2.Click(722, 121)
+  Call browser2.Click(1204, 247)
+  Call browser2.Drag(1354, 270, 11, 221)
+  Set panel = form.panelFormGroup
+  Set table = panel.tableTableTableStripedTableNoBo
+  table.cellTextRight.link.Click
+  Set textNode = panel.panelColSm9.textnodeUpload
+  Call textNode.Click(70, 16)
+  Call browser2.Click(1198, 247)
+  table.cellTextRight2.link.Click
+  Call textNode.DblClick(70, 14)
+  Call textNode.Click(53, 10)
+  Call browser2.Click(1203, 245)
+  table.cellTextRight3.link.Click
+  Call textNode.Click(59, 9)
+  Call browser2.Click(1193, 248)
+  'Call section.buttonCreateAndLoadProcess.Click(34, 15)
+  'Click the Fullname of the review Button
+  Set ReviewBtn = Sys.Browser("chrome").Page("https://internal-retail-dev.momentum.co.za/nbc/#/investment-proposal/uploadAndShare").Section(0).Panel(1).Panel(0).Panel(0).Section(0).Panel(1).Button(0)
+      ReviewBtn.Click
+      
+  Set panel = panel2.panelPanelBody.panelPanelBodyForm
+  Call panel.panelFormDynamicSectionNoMargin.panelColSm6.labelColSm6ControlLabel.HoverMouse(2, 22)
+  Set panel2 = panel.legendFloatNone.panel1
+  'Check if the Client details has all been captured
+  if panel2.Exists Then 
+  Call panel2.HoverMouse(13, 13)
+  Call panel2.DblClick(9, 7)
+  End If 
+  
+  Call browser2.Drag(1360, 149, 5, 226)
+  Set legend = panel.legendFloatNone2
+  Call legend.HoverMouse(203, 4)
+  Set panel2 = legend.panel1
+  'Check if all the product details has been captured
+  if panel2.Exists Then
+  Call panel2.DblClick(9, 11)
+  Call panel2.Click(9, 11)
+  End If 
+  
+  Call browser2.Drag(1358, 383, 1, 127)
+  Set panel2 = panel.legendFloatNone3.panel3
+  'Call panel2.HoverMouse(14, 15)
+  'Check the Financial Advisor details
+  if panel2.Exists Then
+  Call panel2.HoverMouse(14, 15)
+  Call panel2.DblClick(10, 8)
+  End If
+  'Tst = aqObject.GetPropertyValue(panel.legendFloatNone3.panel3, "Wtext")
+  'MsgBox (Tst)
+  Call browser2.Drag(1359, 461, 6, 66)
+  'aqObject.Get
+End Sub
+
+Sub Test1
+  Call Browsers.Item(btChrome).Run("about:blank")
+End Sub
